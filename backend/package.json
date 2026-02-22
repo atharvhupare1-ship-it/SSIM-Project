@@ -1,0 +1,32 @@
+{
+  "name": "ssim-backend",
+  "version": "1.0.0",
+  "description": "Stationery Inventory Management System — Backend API",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atharvhupare1-ship-it/SSIM-Project.git"
+  },
+  "keywords": [
+    "inventory",
+    "stationery",
+    "management"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/atharvhupare1-ship-it/SSIM-Project/issues"
+  },
+  "homepage": "https://github.com/atharvhupare1-ship-it/SSIM-Project#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.3.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.18.0"
+  }
+}
