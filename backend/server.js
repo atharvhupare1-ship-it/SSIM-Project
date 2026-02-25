@@ -6,8 +6,12 @@ import { handleCategoryRoutes } from "./routes/categories.js";
 import { handleSupplierRoutes } from "./routes/suppliers.js";
 import { handleStockRoutes } from "./routes/stock.js";
 import { handleDashboardRoutes } from "./routes/dashboard.js";
+import { runMigrations } from "./migrate.js";
 
 dotenv.config();
+
+// Run database migrations on startup (creates tables if they don't exist)
+await runMigrations();
 
 const PORT = process.env.PORT || 5000;
 
