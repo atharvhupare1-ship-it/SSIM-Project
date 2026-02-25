@@ -62,13 +62,17 @@ const server = http.createServer(async (req, res) => {
                     name: result.rows[0].db,
                 };
 
-                // Check if tables exist
+                // Check tables and row counts
                 const tables = await pool.query(`
                     SELECT table_name FROM information_schema.tables 
                     WHERE table_schema = 'public' 
                     ORDER BY table_name
                 `);
-                checks.tables = tables.rows.map(r => r.table_name);
+                checks.tables = {};
+                for (const row of tables.rows) {
+                    const countRes = await pool.query(`SELECT COUNT(*) FROM "${row.table_name}"`);
+                    checks.tables[row.table_name] = parseInt(countRes.rows[0].count);
+                }
             } catch (dbErr) {
                 checks.database = {
                     status: "error",
@@ -78,6 +82,44 @@ const server = http.createServer(async (req, res) => {
 
             res.writeHead(200);
             return res.end(JSON.stringify(checks, null, 2));
+        }
+
+        // ========== Seed Data (One-time) ==========
+        if (url === "/api/seed" && req.method === "POST") {
+            const { pool } = await import("./db.js");
+            const { readFileSync } = await import("fs");
+            const { fileURLToPath } = await import("url");
+            const { dirname, join } = await import("path");
+            const __filename = fileURLToPath(import.meta.url);
+            const __dirname = dirname(__filename);
+
+            try {
+                const seedPath = join(__dirname, "seed_data.sql");
+                const seedData = readFileSync(seedPath, "utf-8");
+                await pool.query(seedData);
+
+                // Report what was inserted
+                const suppliers = await pool.query("SELECT COUNT(*) FROM suppliers");
+                const products = await pool.query("SELECT COUNT(*) FROM products");
+                const categories = await pool.query("SELECT COUNT(*) FROM categories");
+
+                res.writeHead(200);
+                return res.end(JSON.stringify({
+                    message: "Seed data loaded successfully.",
+                    counts: {
+                        categories: parseInt(categories.rows[0].count),
+                        suppliers: parseInt(suppliers.rows[0].count),
+                        products: parseInt(products.rows[0].count),
+                    }
+                }, null, 2));
+            } catch (seedErr) {
+                res.writeHead(500);
+                return res.end(JSON.stringify({
+                    message: "Seed failed.",
+                    error: seedErr.message,
+                    detail: seedErr.detail || null,
+                }, null, 2));
+            }
         }
 
         // ========== Route Dispatcher ==========
