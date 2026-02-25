@@ -35,6 +35,47 @@ const server = http.createServer(async (req, res) => {
     try {
         const url = req.url.split("?")[0];
 
+        // ========== Health Check (Diagnostic) ==========
+        if (url === "/api/health") {
+            const { pool } = await import("./db.js");
+            const checks = {
+                server: "ok",
+                env: {
+                    DATABASE_URL: !!process.env.DATABASE_URL,
+                    JWT_SECRET: !!process.env.JWT_SECRET,
+                    PORT: process.env.PORT || "not set (using 5000)",
+                    NODE_ENV: process.env.NODE_ENV || "not set",
+                    CORS_ORIGIN: process.env.CORS_ORIGIN || "not set",
+                },
+                database: "checking...",
+            };
+
+            try {
+                const result = await pool.query("SELECT NOW() AS time, current_database() AS db");
+                checks.database = {
+                    status: "connected",
+                    time: result.rows[0].time,
+                    name: result.rows[0].db,
+                };
+
+                // Check if tables exist
+                const tables = await pool.query(`
+                    SELECT table_name FROM information_schema.tables 
+                    WHERE table_schema = 'public' 
+                    ORDER BY table_name
+                `);
+                checks.tables = tables.rows.map(r => r.table_name);
+            } catch (dbErr) {
+                checks.database = {
+                    status: "error",
+                    message: dbErr.message,
+                };
+            }
+
+            res.writeHead(200);
+            return res.end(JSON.stringify(checks, null, 2));
+        }
+
         // ========== Route Dispatcher ==========
         if (url.startsWith("/api/auth")) {
             return await handleAuthRoutes(req, res);
@@ -74,6 +115,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`🚀 SSIM Server running on http://localhost:${PORT}`);
-    console.log(`📦 Environment: ${process.env.NODE_ENV || "development"}`);
+    console.log(`🚀 SSIM Server running on ${PORT}`);
 });
