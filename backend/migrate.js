@@ -18,6 +18,18 @@ export const runMigrations = async () => {
         console.log("🔄 Running database migrations...");
         await pool.query(schema);
         console.log("✅ Database migrations completed successfully.");
+
+        // Seed data only if products table is empty
+        const productCount = await pool.query("SELECT COUNT(*) FROM products");
+        if (parseInt(productCount.rows[0].count) === 0) {
+            console.log("🌱 Seeding database with initial data...");
+            const seedPath = join(__dirname, "seed_data.sql");
+            const seedData = readFileSync(seedPath, "utf-8");
+            await pool.query(seedData);
+            console.log("✅ Seed data loaded successfully.");
+        } else {
+            console.log("📦 Database already has data, skipping seed.");
+        }
     } catch (error) {
         console.error("❌ Migration error:", error.message);
         // Don't crash the server — tables might already exist
