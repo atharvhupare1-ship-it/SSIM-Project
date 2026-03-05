@@ -6,6 +6,7 @@ import { handleCategoryRoutes } from "./routes/categories.js";
 import { handleSupplierRoutes } from "./routes/suppliers.js";
 import { handleStockRoutes } from "./routes/stock.js";
 import { handleDashboardRoutes } from "./routes/dashboard.js";
+import { handleReportRoutes } from "./routes/reports.js";
 import { runMigrations } from "./migrate.js";
 
 dotenv.config();
@@ -145,6 +146,10 @@ const server = http.createServer(async (req, res) => {
 
         if (url.startsWith("/api/stock")) {
             return await handleStockRoutes(req, res);
+        }
+
+        if (url.startsWith("/api/reports")) {
+            return await handleReportRoutes(req, res);
         }
 
         // ========== 404 Fallback ==========

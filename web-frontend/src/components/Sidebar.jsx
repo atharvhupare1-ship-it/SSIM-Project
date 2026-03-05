@@ -7,6 +7,7 @@ import {
     MdLocalShipping,
     MdShowChart,
     MdLogout,
+    MdAssessment,
 } from "react-icons/md";
 
 const navItems = [
@@ -15,6 +16,7 @@ const navItems = [
     { path: "/categories", label: "Categories", icon: <MdCategory /> },
     { path: "/suppliers", label: "Suppliers", icon: <MdLocalShipping /> },
     { path: "/stock", label: "Stock", icon: <MdShowChart /> },
+    { path: "/reports", label: "Reports", icon: <MdAssessment /> },
 ];
 
 const Sidebar = () => {

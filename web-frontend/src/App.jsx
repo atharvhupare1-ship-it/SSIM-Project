@@ -9,6 +9,7 @@ import ProductFormPage from "./pages/ProductFormPage";
 import CategoriesPage from "./pages/CategoriesPage";
 import SuppliersPage from "./pages/SuppliersPage";
 import StockPage from "./pages/StockPage";
+import ReportsPage from "./pages/ReportsPage";
 
 const LoginRedirect = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -36,6 +37,7 @@ function App() {
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/suppliers" element={<SuppliersPage />} />
             <Route path="/stock" element={<StockPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
